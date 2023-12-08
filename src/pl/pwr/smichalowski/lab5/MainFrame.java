@@ -47,25 +47,22 @@ public class MainFrame extends JFrame implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+
         x = panel.getCharacter().getX();
         y = panel.getCharacter().getY();
 
         switch(e.getKeyCode()) {
             case 39: // prawo
-                panel.getCharacter().setX(x + 1);
-                System.out.println("Przesuwasz w prawo");
+                if(x < 760) panel.getCharacter().setX(x + 40);
                 break;
             case 37: // lewo
-                panel.getCharacter().setX(x - 1);
-                System.out.println("Przesuwasz w lewo");
+                if(x > 40) panel.getCharacter().setX(x - 40);
                 break;
             case 38: // gora
-                panel.getCharacter().setY(y + 1);
-                System.out.println("Przesuwasz w gore");
+                if(y > 40) panel.getCharacter().setY(y - 40);
                 break;
             case 40: // dol
-                panel.getCharacter().setY(y - 1);
-                System.out.println("Przesuwasz w dol");
+                if(y < 560) panel.getCharacter().setY(y + 40);
                 break;
             default:
                 break;

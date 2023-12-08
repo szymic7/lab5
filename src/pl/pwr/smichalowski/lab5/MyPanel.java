@@ -17,9 +17,10 @@ public class MyPanel extends JPanel {
         this.setLayout(null);
         this.setFocusable(false);
 
-        character = new Character(100, 100);
+        character = new Character(2, 562);
 
-        image = Toolkit.getDefaultToolkit().getImage("character.png");
+        image = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\character.png");
+
     }
 
     public Character getCharacter() {
@@ -31,11 +32,16 @@ public class MyPanel extends JPanel {
         super.paintComponent(g);
         g2d = (Graphics2D) g;
         try {
+            g2d.setColor(new Color(104, 176, 96));
+            for(int i = 1; i < 20; i++) {
+                g2d.drawLine(i*40, 0, i*40, 600);
+                if(i < 15) g2d.drawLine(0, i*40, 800, i*40);
+            }
+
             g2d.setColor(Color.BLACK);
-            g2d.drawImage(image, character.getX(), character.getY(), this);
-        } finally {
-            g2d.dispose();
-        }
+            g2d.drawImage(image, character.getX(), character.getY(), null);
+
+        } catch (Exception e) {}
 
     }
 }
