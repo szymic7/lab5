@@ -14,7 +14,7 @@ public class MainFrame extends JFrame implements KeyListener {
     public MainFrame() {
 
         // JFrame
-        this.setTitle("Gra");
+        this.setTitle("Unikaj głazów i zbieraj zasoby ani uzyskać jak najlepszy wynik");
         this.setSize(835, 657);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
@@ -67,7 +67,9 @@ public class MainFrame extends JFrame implements KeyListener {
             default:
                 break;
         }
+
         panel.repaint();
+
     }
 
     @Override
