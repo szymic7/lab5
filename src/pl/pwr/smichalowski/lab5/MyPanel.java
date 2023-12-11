@@ -20,6 +20,7 @@ public class MyPanel extends JPanel implements ActionListener {
     private long startTime = 0L, currentTime = 0L;
     private static final int N = 10, M = 15;
     public int liczba = 0;
+    private boolean gameWorking = true;
 
 
     public MyPanel() {
@@ -32,7 +33,7 @@ public class MyPanel extends JPanel implements ActionListener {
 
         // JLabel - timeLabel
         timeLabel = new JLabel("Time: ");
-        timeLabel.setBounds(3, 5, 40, 15);
+        timeLabel.setBounds(4, 5, 40, 15);
         timeLabel.setForeground(Color.WHITE);
         timeLabel.setFocusable(false);
         this.add(timeLabel);
@@ -62,62 +63,44 @@ public class MyPanel extends JPanel implements ActionListener {
         this.add(score);
 
 
-        // Umieszczenie postaci w domyslnym miejscu
+        // Umieszczenie postaci w domyslnym miejscu - lewym dolnym rogu planszy
         character = new Character(2, 562);
 
-        // Wczytanie plikow png reprezentujacych postac, jablko i butelke wody
         characterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\character.png");
+        // https://fonts.google.com/icons?selected=Material+Icons:man:
+
         appleImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\apple.png");
-        waterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\waterbottle.png");
+        // <a href="https://www.flaticon.com/free-icons/apple" title="apple icons">Apple icons created by Creative Stall Premium - Flaticon</a>
+
+        waterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\water-bottle.png");
+        // <a href="https://www.flaticon.com/free-icons/water" title="water icons">Water icons created by srip - Flaticon</a>
+
         rockImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\rock.png");
+        // https://www.iconarchive.com/show/fluentui-emoji-flat-icons-by-microsoft/Rock-Flat-icon.html
 
 
         timer = new Timer(0, this);
         timer.start();
 
-        rockTimer = new Timer(30, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(int i = 0; i < rocks.length; i++) {
-
-                    if(rocks[i] != null) {
-
-                        rocks[i].setY(rocks[i].getY() + 10);
-
-                        if(rocks[i].getY() > 564) {
-                            rocks[i] = null;
-                        }
-
-                    }
-
-                }
-                repaint();
-            }
-        });
-        rockTimer.start();
-
         startTime = System.nanoTime();
 
+        // Wywołanie metod rozpoczynających nowe wątki odpowiedzialne na obsługę zasobów i przeszkód
         startAppleThread();
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                startWaterThread(); // rozpoczecie (z opoznieniem) watku odpowiedzialnego za generowanie butelek wody
-            }
-        });
-
+        startWaterThread();
         startRocksThread();
+        startRocksFallingThread();
 
     }
 
 
-    public void startAppleThread() { // Wątek obsługujący generowanie nowych jabłek na planszy
+    public void startAppleThread() {
 
-        Thread appleThread = new Thread(() -> {
+        Thread appleThread = new Thread(() -> { // Wątek obsługujący generowanie nowych jabłek na planszy
 
-            while(true) {
+            while(gameWorking) {
                 for (int i = 0; i < apples.length; i++) {
+
+                    if(!gameWorking) break;
 
                     if (apples[i] == null) {
                         apples[i] = new Apple();
@@ -139,13 +122,12 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
                         }
 
-                        if (apples[i] != null)
-                            repaint(); // Jesli nie bedzie takie samo, jak zadne isteniejace juz jablko
+                        if (apples[i] != null) repaint(); // Jesli nie bedzie takie samo, jak zadne isteniejace juz jablko
 
                     }
 
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(5000); // Nowe jakblka pojawiaja sie co 5 sekund
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -158,11 +140,15 @@ public class MyPanel extends JPanel implements ActionListener {
 
     }
 
-    public void startWaterThread() { // Wątek obsługujący generowanie nowych butelek wody na planszy
-        Thread waterThread = new Thread(() -> {
 
-            while(true) {
+    public void startWaterThread() {
+
+        Thread waterThread = new Thread(() -> { // Wątek obsługujący generowanie nowych butelek wody na planszy
+
+            while(gameWorking) {
                 for (int i = 0; i < waterBottles.length; i++) {
+
+                    if(!gameWorking) break;
 
                     if (waterBottles[i] == null) {
                         waterBottles[i] = new Water();
@@ -184,13 +170,12 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
                         }
 
-                        if (waterBottles[i] != null)
-                            repaint(); // Jesli nie bedzie takie samo, jak zadna istniejaca juz woda
+                        if (waterBottles[i] != null) repaint(); // Jesli nie bedzie takie samo, jak zadna istniejaca juz woda
 
                     }
 
                     try {
-                        Thread.sleep(7000);
+                        Thread.sleep(7000); // Nowe butelki pojawiaja sie co 7 sekund
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -204,11 +189,14 @@ public class MyPanel extends JPanel implements ActionListener {
     }
 
 
-    public void startRocksThread() { // Wątek obsługujący spadające kamienie, których trzeba unikać
-        Thread rocksThread = new Thread(() -> {
+    public void startRocksThread() {
 
-            while(true) {
+        Thread rocksThread = new Thread(() -> { // Wątek obsługujący generowanie nowych kamieni
+
+            while(gameWorking) {
                 for (int i = 0; i < rocks.length; i++) {
+
+                    if(!gameWorking) break;
 
                     if (rocks[i] == null) {
                         rocks[i] = new Rock();
@@ -223,13 +211,12 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
                         }
 
-                        if (rocks[i] != null)
-                            repaint(); // Jesli nie bedzie takie samo, jak zadne isteniejace juz jablko
+                        if (rocks[i] != null) repaint(); // Jesli nie bedzie taki sam jak zaden istniejacy juz kamien
 
                     }
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(200); // Nowe kamienie pojawiaja sie co 0,2 sekundy
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -242,36 +229,73 @@ public class MyPanel extends JPanel implements ActionListener {
     }
 
 
+    public void startRocksFallingThread() {
+
+        Thread rocksFallingThread = new Thread(() -> { // Wątek obsługujący spadanie kamieni
+
+            while(gameWorking) {
+
+
+                for(int i = 0; i < rocks.length; i++) {
+
+                    if(!gameWorking) break;
+
+                    if(rocks[i] != null) {
+
+                        rocks[i].setY(rocks[i].getY() + 10);
+
+                        if(rocks[i].getY() > 600) {
+                            rocks[i] = null;
+                        }
+
+                    }
+
+                }
+                repaint();
+
+                try {
+                    Thread.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        });
+        rocksFallingThread.start();
+
+    }
+
+
     public Character getCharacter() {
         return character;
     }
 
-    public Apple[] getApples() {
-        return this.apples;
+
+    public boolean getGameWorking() {
+        return this.gameWorking;
     }
+
 
     public void pickUpApple(int i) {
         apples[i] = null;
-        // appleCount -= 1;
         this.scoreAchieved += 5;
         score.setText(String.valueOf(scoreAchieved));
     }
 
+
     public void pickUpWaterBottle(int i) {
         waterBottles[i] = null;
-        // waterCount -= 1;
         this.scoreAchieved += 10;
         score.setText(String.valueOf(scoreAchieved));
     }
 
-    public Water[] getWaterBottles() {
-        return this.waterBottles;
-    }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g2d = (Graphics2D) g;
+
         try {
 
             // Linie siatki mapy
@@ -282,33 +306,21 @@ public class MyPanel extends JPanel implements ActionListener {
             }
 
             // Postac
-            g2d.setColor(Color.BLACK);
             g2d.drawImage(characterImage, character.getX(), character.getY(), null);
 
             // Jablka
-            g2d.setColor(Color.RED);
             for (Apple apple : apples) {
-                if (apple != null) {
-                    g2d.drawImage(appleImage, apple.getX(), apple.getY(), null);
-                    //g2d.fillOval(apple.getX(), apple.getY(), 36, 36);
-                }
+                if (apple != null) g2d.drawImage(appleImage, apple.getX(), apple.getY(), null);
             }
 
             // Butelki wody
-            g2d.setColor(Color.CYAN);
             for (Water water : waterBottles) {
-                if (water != null) {
-                    g2d.drawImage(waterImage, water.getX(), water.getY(), null);
-                    //g2d.fillOval(water.getX(), water.getY(), 36, 36);
-                }
+                if (water != null) g2d.drawImage(waterImage, water.getX(), water.getY(), null);
             }
 
             // Kamienie
-            g2d.setColor(Color.GRAY);
             for(Rock rock: rocks) {
-                if(rock != null) {
-                    g2d.drawImage(rockImage, rock.getX(), rock.getY(), null);
-                }
+                if(rock != null) g2d.drawImage(rockImage, rock.getX(), rock.getY(), null);
             }
 
         } catch (Exception e) {}
@@ -319,17 +331,20 @@ public class MyPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
+        // Obsługa zegara mierzącego czas gry
         currentTime = System.nanoTime();
         time.setText(String.valueOf((currentTime - startTime)/1000000000));
 
+        // Dodanie +1 punktu do wyniku za każdą przetrwaną sekundę
         // Warunek spelniony bedzie tylko raz dla kazdej pelnej sekundy, nastepnie zmienna 'liczba' zwieksza sie o 1
         // i oczekuje na kolejna pelna sekunde
         if(Integer.valueOf(time.getText()) != liczba) {
-            scoreAchieved += 1; // kazda przezyta sekunda to +1 punkt do wyniku
+            scoreAchieved += 1;
             score.setText(String.valueOf(scoreAchieved));
             liczba += 1;
         }
 
+        // Sprawdzenie czy można podnieść któreś z jabłek
         for(int i = 0; i < apples.length; i++) {
             if(apples[i] != null) {
                 if(character.getX()+2 == apples[i].getX() && character.getY()+2 == apples[i].getY()) {
@@ -339,6 +354,7 @@ public class MyPanel extends JPanel implements ActionListener {
             }
         }
 
+        // Sprawdzenie czy można podnieść którąś z butelek wody
         for(int i = 0; i < waterBottles.length; i++) {
             if(waterBottles[i] != null) {
                 if(character.getX()+2 == waterBottles[i].getX() && character.getY()+2 == waterBottles[i].getY()) {
@@ -348,7 +364,21 @@ public class MyPanel extends JPanel implements ActionListener {
             }
         }
 
+        // Sprawdzenie czy postać nie natrafiła na kamień - koniec gry
+        for(Rock rock: rocks) {
+            if(rock != null) {
+                if(character.getX()+2 == rock.getX() && character.getY()+30 > rock.getY() && character.getY()-30 < rock.getY()) {
+                    gameWorking = false;
+                    //rockTimer.stop();
+                    timer.stop();
+                    System.out.println("Przegrales");
+                    break;
+                }
+            }
+        }
+
         repaint();
+
     }
 
 }

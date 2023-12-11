@@ -7,8 +7,8 @@ import java.awt.event.KeyListener;
 public class MainFrame extends JFrame implements KeyListener {
 
     private MyPanel panel;
-    private final int mapLenght = 20; // 1 pole - 40 pikseli
-    private final int mapHeight = 15; // 1 pole - 40 pikseli
+    private final int mapLenght = 800; // 20 pól po 40 pikseli szerokości
+    private final int mapHeight = 600; // 15 pól po 40 pikseli wysokości
     public int x, y;
 
     public MainFrame() {
@@ -24,7 +24,7 @@ public class MainFrame extends JFrame implements KeyListener {
 
         // MyPanel - panel
         panel = new MyPanel();
-        panel.setBounds(10, 10, 800, 600);
+        panel.setBounds(10, 10, this.mapLenght, this.mapHeight);
         this.add(panel);
 
 
@@ -48,28 +48,30 @@ public class MainFrame extends JFrame implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
 
-        x = panel.getCharacter().getX();
-        y = panel.getCharacter().getY();
+        if(this.panel.getGameWorking()) {
 
-        switch(e.getKeyCode()) {
-            case 39: // prawo
-                if(x < 760) panel.getCharacter().setX(x + 40);
-                break;
-            case 37: // lewo
-                if(x > 40) panel.getCharacter().setX(x - 40);
-                break;
-            case 38: // gora
-                if(y > 40) panel.getCharacter().setY(y - 40);
-                break;
-            case 40: // dol
-                if(y < 560) panel.getCharacter().setY(y + 40);
-                break;
-            default:
-                break;
+            x = panel.getCharacter().getX();
+            y = panel.getCharacter().getY();
+
+            switch (e.getKeyCode()) {
+                case 39: // prawo
+                    if (x < 760) panel.getCharacter().setX(x + 40);
+                    break;
+                case 37: // lewo
+                    if (x > 40) panel.getCharacter().setX(x - 40);
+                    break;
+                case 38: // gora
+                    if (y > 40) panel.getCharacter().setY(y - 40);
+                    break;
+                case 40: // dol
+                    if (y < 560) panel.getCharacter().setY(y + 40);
+                    break;
+                default:
+                    break;
+            }
+
+            panel.repaint();
         }
-
-        panel.repaint();
-
     }
 
     @Override
