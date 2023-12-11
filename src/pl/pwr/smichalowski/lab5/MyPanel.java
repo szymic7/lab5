@@ -10,14 +10,15 @@ public class MyPanel extends JPanel implements ActionListener {
 
     private JLabel timeLabel, time, scoreLabel, score;
     private int timePassed = 0, scoreAchieved = 0;
-    private Image characterImage, appleImage, waterImage;
+    private Image characterImage, appleImage, waterImage, rockImage;
     private Graphics2D g2d;
     private Character character;
     private Apple[] apples = new Apple[N];
     private Water[] waterBottles = new Water[N];
-    private Timer timer;
+    private Rock[] rocks = new Rock[M];
+    private Timer timer, rockTimer;
     private long startTime = 0L, currentTime = 0L;
-    private static final int N = 10;
+    private static final int N = 10, M = 15;
     public int liczba = 0;
 
 
@@ -68,10 +69,32 @@ public class MyPanel extends JPanel implements ActionListener {
         characterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\character.png");
         appleImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\apple.png");
         waterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\waterbottle.png");
+        rockImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\rock.png");
 
 
         timer = new Timer(0, this);
         timer.start();
+
+        rockTimer = new Timer(30, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(int i = 0; i < rocks.length; i++) {
+
+                    if(rocks[i] != null) {
+
+                        rocks[i].setY(rocks[i].getY() + 10);
+
+                        if(rocks[i].getY() > 564) {
+                            rocks[i] = null;
+                        }
+
+                    }
+
+                }
+                repaint();
+            }
+        });
+        rockTimer.start();
 
         startTime = System.nanoTime();
 
@@ -84,9 +107,12 @@ public class MyPanel extends JPanel implements ActionListener {
             }
         });
 
+        startRocksThread();
+
     }
 
-    public void startAppleThread() {
+
+    public void startAppleThread() { // Wątek obsługujący generowanie nowych jabłek na planszy
 
         Thread appleThread = new Thread(() -> {
 
@@ -132,7 +158,7 @@ public class MyPanel extends JPanel implements ActionListener {
 
     }
 
-    public void startWaterThread() {
+    public void startWaterThread() { // Wątek obsługujący generowanie nowych butelek wody na planszy
         Thread waterThread = new Thread(() -> {
 
             while(true) {
@@ -175,6 +201,44 @@ public class MyPanel extends JPanel implements ActionListener {
         });
         waterThread.start();
 
+    }
+
+
+    public void startRocksThread() { // Wątek obsługujący spadające kamienie, których trzeba unikać
+        Thread rocksThread = new Thread(() -> {
+
+            while(true) {
+                for (int i = 0; i < rocks.length; i++) {
+
+                    if (rocks[i] == null) {
+                        rocks[i] = new Rock();
+
+                        for (int j = 0; j < rocks.length; j++) {
+                            if (i != j) {
+                                if (rocks[i].equals(rocks[j])) {
+                                    rocks[i] = null;
+                                    i--;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (rocks[i] != null)
+                            repaint(); // Jesli nie bedzie takie samo, jak zadne isteniejace juz jablko
+
+                    }
+
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+        });
+        rocksThread.start();
     }
 
 
@@ -236,6 +300,14 @@ public class MyPanel extends JPanel implements ActionListener {
                 if (water != null) {
                     g2d.drawImage(waterImage, water.getX(), water.getY(), null);
                     //g2d.fillOval(water.getX(), water.getY(), 36, 36);
+                }
+            }
+
+            // Kamienie
+            g2d.setColor(Color.GRAY);
+            for(Rock rock: rocks) {
+                if(rock != null) {
+                    g2d.drawImage(rockImage, rock.getX(), rock.getY(), null);
                 }
             }
 
