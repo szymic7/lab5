@@ -2,6 +2,9 @@ package pl.pwr.smichalowski.lab5;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,12 +24,14 @@ public class MyPanel extends JPanel implements ActionListener {
     private static final int N = 10, M = 15;
     public int liczba = 0;
     private boolean gameWorking = true;
+    public static LineBorder border = new LineBorder(Color.BLACK, 5, true);
 
 
     public MyPanel() {
 
         this.setBackground(new Color(141, 218, 134));
-        this.setBorder(new LineBorder(Color.BLACK, 5, true));
+        //this.setBorder(new LineBorder(Color.BLACK, 5, true));
+        this.setBorder(border);
         this.setLayout(null);
         this.setFocusable(false);
 
@@ -369,9 +374,25 @@ public class MyPanel extends JPanel implements ActionListener {
             if(rock != null) {
                 if(character.getX()+2 == rock.getX() && character.getY()+30 > rock.getY() && character.getY()-30 < rock.getY()) {
                     gameWorking = false;
-                    //rockTimer.stop();
                     timer.stop();
-                    System.out.println("Przegrales");
+
+                    // JTextPane - komunikat o zakończeniu gry i uzyskanym wyniku
+                    JTextPane gameOver = new JTextPane();
+                    gameOver.setText("\n\n\n\nKoniec gry\n\nUzyskany wynik: " + score.getText());
+                    gameOver.setFont(new Font("Arial", Font.BOLD, 24));
+                    gameOver.setBorder(border);
+                    gameOver.setBackground(new Color(171, 206, 255));
+                    gameOver.setOpaque(true);
+                    gameOver.setBounds(200, 150, 400, 300);
+                    gameOver.setFocusable(false);
+                    this.add(gameOver);
+
+                    // Wyśrodkowanie informacji o zakończeniu gry na TextPane'ie
+                    StyledDocument documentStyle = gameOver.getStyledDocument();
+                    SimpleAttributeSet centerAttribute = new SimpleAttributeSet();
+                    StyleConstants.setAlignment(centerAttribute, StyleConstants.ALIGN_CENTER);
+                    documentStyle.setParagraphAttributes(0, documentStyle.getLength(), centerAttribute, false);
+
                     break;
                 }
             }

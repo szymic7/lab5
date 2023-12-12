@@ -14,7 +14,7 @@ public class MainFrame extends JFrame implements KeyListener {
     public MainFrame() {
 
         // JFrame
-        this.setTitle("Unikaj głazów i zbieraj zasoby ani uzyskać jak najlepszy wynik");
+        this.setTitle("GRA PLATFORMOWA");
         this.setSize(835, 657);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
