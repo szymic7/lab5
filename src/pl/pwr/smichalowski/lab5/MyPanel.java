@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 public class MyPanel extends JPanel implements ActionListener {
 
     private JLabel timeLabel, time, scoreLabel, score;
-    private int scoreAchieved = 0, liczba = 0;
+    private int scoreAchieved = 0, liczba = 0, sameApple = 0, sameWater = 0;
     private BufferedImage bufferImage;
     private Character character;
     private Apple[] apples = new Apple[N];
@@ -68,7 +68,7 @@ public class MyPanel extends JPanel implements ActionListener {
 
 
         // bufferedImage - bufor
-        this.bufferImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+        bufferImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 
 
         // Umieszczenie postaci w domyslnym miejscu - lewym dolnym rogu planszy
@@ -90,11 +90,17 @@ public class MyPanel extends JPanel implements ActionListener {
 
         // Wywołanie metod rozpoczynających nowe wątki odpowiedzialne na obsługę zasobów i przeszkód
         startAppleThread();
-        startWaterThread();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                startWaterThread(); // Wywołanie z opóźnieniem, aby zdazylo sie utworzyc pierwsze jabłko
+            }
+        });
+
         startRocksThread();
         startRocksFallingThread();
 
-    }
+    } // Koniec konstruktora obiektu klasy MyPanel
 
 
     public void startAppleThread() {
@@ -102,6 +108,7 @@ public class MyPanel extends JPanel implements ActionListener {
         Thread appleThread = new Thread(() -> { // Wątek obsługujący generowanie nowych jabłek na planszy
 
             while(gameWorking) {
+
                 for (int i = 0; i < apples.length; i++) {
 
                     if(!gameWorking) break;
@@ -110,40 +117,50 @@ public class MyPanel extends JPanel implements ActionListener {
                         apples[i] = new Apple();
 
                         for (int j = 0; j < apples.length; j++) {
+
                             if (i == j) {
+
                                 if (apples[i].equals(waterBottles[j])) {
                                     apples[i] = null;
-                                    i--;
+                                    sameApple += 1;
                                     break;
                                 }
-                            }
-                            if (i != j) {
+
+                            } else { // i != j
+
                                 if (apples[i].equals(apples[j]) || apples[i].equals(waterBottles[j])) {
                                     apples[i] = null;
-                                    i--;
+                                    sameApple += 1;
                                     break;
                                 }
+
                             }
+
                         }
 
-                        // Jesli nie bedzie w tym samym miejscu co zadne isteniejace juz jablko ani woda
-                        if (apples[i] != null) this.repaint();
+                        if(sameApple == 0) { // Wspolrzedne jabłka nie powtarzają się
+                            if (apples[i] != null) repaint();
+                            try {
+                                Thread.sleep(5000); // Kolejne jabłko pojawi sie za 5 sekund
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
 
-                    }
+                        } else if(sameApple == 1) { // Współrzędne jablka powtarzają się
+                            sameApple = 0;
+                            i--; // Ponowne wejscie do petli dla tej samej wartosci i, aby wylosowac unikalne wspolrzedne jablka
+                        }
 
-                    try {
-                        Thread.sleep(5000); // Nowe jakblka pojawiaja sie co 5 sekund
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
 
                 }
+
             }
 
         });
         appleThread.start();
 
-    }
+    } // Koniec metody startAppleThread()
 
 
     public void startWaterThread() {
@@ -151,6 +168,7 @@ public class MyPanel extends JPanel implements ActionListener {
         Thread waterThread = new Thread(() -> { // Wątek obsługujący generowanie nowych butelek wody na planszy
 
             while(gameWorking) {
+
                 for (int i = 0; i < waterBottles.length; i++) {
 
                     if(!gameWorking) break;
@@ -159,40 +177,50 @@ public class MyPanel extends JPanel implements ActionListener {
                         waterBottles[i] = new Water();
 
                         for (int j = 0; j < waterBottles.length; j++) {
+
                             if (i == j) {
+
                                 if (waterBottles[i].equals(apples[j])) {
                                     waterBottles[i] = null;
-                                    i--;
+                                    sameWater += 1;
                                     break;
                                 }
-                            }
-                            if (i != j) {
+
+                            } else { // i != j
+
                                 if (waterBottles[i].equals(waterBottles[j]) || waterBottles[i].equals(apples[j])) {
                                     waterBottles[i] = null;
-                                    i--;
+                                    sameWater += 1;
                                     break;
                                 }
+
                             }
+
                         }
 
-                        // Jesli nie bedzie w tym samym miejscu co zadna istniejaca juz woda ani jablko
-                        if (waterBottles[i] != null) repaint();
+                        if(sameWater == 0) { // Wspolrzedne wody nie powtarzają się
+                            if (waterBottles[i] != null) repaint();
+                            try {
+                                Thread.sleep(7000); // Kolejna butelka pojawi sie za 7 sekund
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
 
-                    }
+                        } else if(sameWater == 1) { // Współrzędne wody powtarzają się
+                            sameWater = 0;
+                            i--; // Ponowne wejscie do petli dla tej samej wartosci i, aby wylosowac unikalne wspolrzedne wody
+                        }
 
-                    try {
-                        Thread.sleep(7000); // Nowe butelki pojawiaja sie co 7 sekund
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
 
                 }
+
             }
 
         });
         waterThread.start();
 
-    }
+    } // Koniec metody startWaterThread()
 
 
     public void startRocksThread() {
@@ -200,40 +228,32 @@ public class MyPanel extends JPanel implements ActionListener {
         Thread rocksThread = new Thread(() -> { // Wątek obsługujący generowanie nowych kamieni
 
             while(gameWorking) {
+
                 for (int i = 0; i < rocks.length; i++) {
 
                     if(!gameWorking) break;
 
                     if (rocks[i] == null) {
-                        rocks[i] = new Rock();
 
-                        for (int j = 0; j < rocks.length; j++) {
-                            if (i != j) {
-                                if (rocks[i].equals(rocks[j])) {
-                                    rocks[i] = null;
-                                    i--;
-                                    break;
-                                }
-                            }
+                        rocks[i] = new Rock();
+                        repaint();
+
+                        try {
+                            Thread.sleep(200); // Nowe kamienie pojawiaja sie co 0,2 sekundy
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
 
-                        // Jesli nie bedzie taki sam jak zaden istniejacy juz kamien
-                        if (rocks[i] != null) repaint();
-
-                    }
-
-                    try {
-                        Thread.sleep(200); // Nowe kamienie pojawiaja sie co 0,2 sekundy
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
 
                 }
+
             }
 
         });
         rocksThread.start();
-    }
+
+    } // Koniec metody startRocksThread()
 
 
     public void startRocksFallingThread() {
@@ -241,7 +261,6 @@ public class MyPanel extends JPanel implements ActionListener {
         Thread rocksFallingThread = new Thread(() -> { // Wątek obsługujący spadanie kamieni
 
             while(gameWorking) {
-
 
                 for(int i = 0; i < rocks.length; i++) {
 
@@ -271,7 +290,7 @@ public class MyPanel extends JPanel implements ActionListener {
         });
         rocksFallingThread.start();
 
-    }
+    } // Koniec metody startRocksFallingThread()
 
 
     public Character getCharacter() {
@@ -304,8 +323,7 @@ public class MyPanel extends JPanel implements ActionListener {
         Graphics2D g2dBuffer = (Graphics2D) bufferImage.getGraphics();
 
         try {
-
-            g2dBuffer.setColor(getBackground()); // Ustawienie koloru na kolor tła panelu
+            g2dBuffer.setColor(getBackground());
             g2dBuffer.fillRect(0, 0, getWidth(), getHeight());
 
             // Linie siatki mapy
@@ -337,16 +355,12 @@ public class MyPanel extends JPanel implements ActionListener {
             g.drawImage(bufferImage, 0, 0, null);
 
         } catch (Exception e) {
-
             e.printStackTrace();
-
         } finally {
-
             g2dBuffer.dispose();
-
         }
 
-    }
+    } // Koniec metody paintComponent()
 
 
     @Override
@@ -390,7 +404,7 @@ public class MyPanel extends JPanel implements ActionListener {
             if(rock != null) {
                 if(character.getX()+2 == rock.getX() && character.getY()+30 > rock.getY() && character.getY()-30 < rock.getY()) {
 
-                    gameWorking = false; // Zakończenie działających wątków
+                    gameWorking = false; // Zatrzymanie działających wątków
                     timer.stop(); // Zatrzymanie timera odpowiedzialnego za aktualizowanie stanu gry
 
                     // JTextPane - komunikat o zakończeniu gry i uzyskanym wyniku
@@ -417,6 +431,6 @@ public class MyPanel extends JPanel implements ActionListener {
 
         repaint();
 
-    }
+    } // Koniec metody actionPerformed()
 
 }
