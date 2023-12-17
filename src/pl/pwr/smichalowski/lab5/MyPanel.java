@@ -8,30 +8,29 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 public class MyPanel extends JPanel implements ActionListener {
 
     private JLabel timeLabel, time, scoreLabel, score;
-    private int timePassed = 0, scoreAchieved = 0;
-    private Image characterImage, appleImage, waterImage, rockImage;
-    private Graphics2D g2d;
+    private int scoreAchieved = 0, liczba = 0;
+    private BufferedImage bufferImage;
     private Character character;
     private Apple[] apples = new Apple[N];
     private Water[] waterBottles = new Water[N];
-    private Rock[] rocks = new Rock[M];
-    private Timer timer, rockTimer;
-    private long startTime = 0L, currentTime = 0L;
-    private static final int N = 10, M = 15;
-    public int liczba = 0;
-    private boolean gameWorking = true;
-    public static LineBorder border = new LineBorder(Color.BLACK, 5, true);
+    private Rock[] rocks = new Rock[N];
+    private Timer timer;
+    private long startTime, currentTime = 0L;
+    private boolean gameWorking;
+    private static final int N = 10;
+    public static final LineBorder border = new LineBorder(Color.BLACK, 5, true);
 
 
     public MyPanel() {
 
         this.setBackground(new Color(141, 218, 134));
-        //this.setBorder(new LineBorder(Color.BLACK, 5, true));
         this.setBorder(border);
+        this.setSize(new Dimension(800, 600));
         this.setLayout(null);
         this.setFocusable(false);
 
@@ -45,7 +44,7 @@ public class MyPanel extends JPanel implements ActionListener {
 
 
         // JLabel - time (czas od poczatku gry)
-        time = new JLabel(String.valueOf(timePassed));
+        time = new JLabel(String.valueOf(/*timePassed*/0));
         time.setBounds(43, 5, 40, 15);
         time.setForeground(Color.WHITE);
         time.setFocusable(false);
@@ -68,26 +67,26 @@ public class MyPanel extends JPanel implements ActionListener {
         this.add(score);
 
 
+        // bufferedImage - bufor
+        this.bufferImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+
         // Umieszczenie postaci w domyslnym miejscu - lewym dolnym rogu planszy
         character = new Character(2, 562);
 
-        characterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\character.png");
-        // https://fonts.google.com/icons?selected=Material+Icons:man:
 
-        appleImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\apple.png");
-        // <a href="https://www.flaticon.com/free-icons/apple" title="apple icons">Apple icons created by Creative Stall Premium - Flaticon</a>
-
-        waterImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\water-bottle.png");
-        // <a href="https://www.flaticon.com/free-icons/water" title="water icons">Water icons created by srip - Flaticon</a>
-
-        rockImage = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\rock.png");
-        // https://www.iconarchive.com/show/fluentui-emoji-flat-icons-by-microsoft/Rock-Flat-icon.html
-
-
+        // Timer odpowiedzialny za aktualizację stanu gry
         timer = new Timer(0, this);
         timer.start();
 
+
+        // Rozpoczęcie zliczania czasu gry
         startTime = System.nanoTime();
+
+
+        // Ustawienie zmiennej warunkującej działanie wątków na wartość true
+        gameWorking = true;
+
 
         // Wywołanie metod rozpoczynających nowe wątki odpowiedzialne na obsługę zasobów i przeszkód
         startAppleThread();
@@ -127,7 +126,8 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
                         }
 
-                        if (apples[i] != null) repaint(); // Jesli nie bedzie takie samo, jak zadne isteniejace juz jablko
+                        // Jesli nie bedzie w tym samym miejscu co zadne isteniejace juz jablko ani woda
+                        if (apples[i] != null) this.repaint();
 
                     }
 
@@ -175,7 +175,8 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
                         }
 
-                        if (waterBottles[i] != null) repaint(); // Jesli nie bedzie takie samo, jak zadna istniejaca juz woda
+                        // Jesli nie bedzie w tym samym miejscu co zadna istniejaca juz woda ani jablko
+                        if (waterBottles[i] != null) repaint();
 
                     }
 
@@ -216,7 +217,8 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
                         }
 
-                        if (rocks[i] != null) repaint(); // Jesli nie bedzie taki sam jak zaden istniejacy juz kamien
+                        // Jesli nie bedzie taki sam jak zaden istniejacy juz kamien
+                        if (rocks[i] != null) repaint();
 
                     }
 
@@ -277,7 +279,7 @@ public class MyPanel extends JPanel implements ActionListener {
     }
 
 
-    public boolean getGameWorking() {
+    public boolean isGameWorking() {
         return this.gameWorking;
     }
 
@@ -299,36 +301,50 @@ public class MyPanel extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g2d = (Graphics2D) g;
+        Graphics2D g2dBuffer = (Graphics2D) bufferImage.getGraphics();
 
         try {
 
+            g2dBuffer.setColor(getBackground()); // Ustawienie koloru na kolor tła panelu
+            g2dBuffer.fillRect(0, 0, getWidth(), getHeight());
+
             // Linie siatki mapy
-            g2d.setColor(new Color(123, 211, 115));
+            g2dBuffer.setColor(new Color(123, 211, 115));
             for(int i = 1; i < 20; i++) {
-                g2d.drawLine(i*40, 0, i*40, 600);
-                if(i < 15) g2d.drawLine(0, i*40, 800, i*40);
+                g2dBuffer.drawLine(i*40, 0, i*40, 600);
+                if(i < 15) g2dBuffer.drawLine(0, i*40, 800, i*40);
             }
 
             // Postac
-            g2d.drawImage(characterImage, character.getX(), character.getY(), null);
+            g2dBuffer.drawImage(Character.getImage(), character.getX(), character.getY(), null);
 
             // Jablka
             for (Apple apple : apples) {
-                if (apple != null) g2d.drawImage(appleImage, apple.getX(), apple.getY(), null);
+                if (apple != null) g2dBuffer.drawImage(Apple.getImage(), apple.getX(), apple.getY(), null);
             }
 
             // Butelki wody
             for (Water water : waterBottles) {
-                if (water != null) g2d.drawImage(waterImage, water.getX(), water.getY(), null);
+                if (water != null) g2dBuffer.drawImage(Water.getImage(), water.getX(), water.getY(), null);
             }
 
             // Kamienie
             for(Rock rock: rocks) {
-                if(rock != null) g2d.drawImage(rockImage, rock.getX(), rock.getY(), null);
+                if(rock != null) g2dBuffer.drawImage(Rock.getImage(), rock.getX(), rock.getY(), null);
             }
 
-        } catch (Exception e) {}
+            // Przerysowanie bufora na ekran
+            g.drawImage(bufferImage, 0, 0, null);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            g2dBuffer.dispose();
+
+        }
 
     }
 
@@ -373,8 +389,9 @@ public class MyPanel extends JPanel implements ActionListener {
         for(Rock rock: rocks) {
             if(rock != null) {
                 if(character.getX()+2 == rock.getX() && character.getY()+30 > rock.getY() && character.getY()-30 < rock.getY()) {
-                    gameWorking = false;
-                    timer.stop();
+
+                    gameWorking = false; // Zakończenie działających wątków
+                    timer.stop(); // Zatrzymanie timera odpowiedzialnego za aktualizowanie stanu gry
 
                     // JTextPane - komunikat o zakończeniu gry i uzyskanym wyniku
                     JTextPane gameOver = new JTextPane();

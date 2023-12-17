@@ -1,8 +1,13 @@
 package pl.pwr.smichalowski.lab5;
 
+import java.awt.*;
+
 public class Character {
+
     private int x;
     private int y;
+    private static final Image image = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\character.png");
+    // https://fonts.google.com/icons?selected=Material+Icons:man:
 
     public Character(int x, int y) {
         this.x = x;
@@ -24,4 +29,9 @@ public class Character {
     public void setY(int y) {
         this.y = y;
     }
+
+    public static Image getImage() {
+        return image;
+    }
+
 }

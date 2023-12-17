@@ -1,9 +1,11 @@
 package pl.pwr.smichalowski.lab5;
 
+import java.awt.*;
 import java.util.Objects;
 import java.util.Random;
 
 public abstract class Supply {
+
     private int x;
     private int y;
 

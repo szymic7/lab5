@@ -7,9 +7,7 @@ import java.awt.event.KeyListener;
 public class MainFrame extends JFrame implements KeyListener {
 
     private MyPanel panel;
-    private final int mapLenght = 800; // 20 pól po 40 pikseli szerokości
-    private final int mapHeight = 600; // 15 pól po 40 pikseli wysokości
-    public int x, y;
+    private int x, y;
 
     public MainFrame() {
 
@@ -24,11 +22,11 @@ public class MainFrame extends JFrame implements KeyListener {
 
         // MyPanel - panel
         panel = new MyPanel();
-        panel.setBounds(10, 10, this.mapLenght, this.mapHeight);
+        panel.setBounds(10, 10, panel.getWidth(), panel.getHeight());
         this.add(panel);
 
 
-        // KeyListener - sterowanie postacia
+        // KeyListener - sterowanie postacią
         this.addKeyListener(this);
 
     }
@@ -48,7 +46,7 @@ public class MainFrame extends JFrame implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
 
-        if(this.panel.getGameWorking()) {
+        if(this.panel.isGameWorking()) {
 
             x = panel.getCharacter().getX();
             y = panel.getCharacter().getY();
@@ -56,22 +54,26 @@ public class MainFrame extends JFrame implements KeyListener {
             switch (e.getKeyCode()) {
                 case 39: // prawo
                     if (x < 760) panel.getCharacter().setX(x + 40);
+                    panel.repaint();
                     break;
                 case 37: // lewo
                     if (x > 40) panel.getCharacter().setX(x - 40);
+                    panel.repaint();
                     break;
                 case 38: // gora
                     if (y > 40) panel.getCharacter().setY(y - 40);
+                    panel.repaint();
                     break;
                 case 40: // dol
                     if (y < 560) panel.getCharacter().setY(y + 40);
+                    panel.repaint();
                     break;
                 default:
                     break;
             }
 
-            panel.repaint();
         }
+
     }
 
     @Override
