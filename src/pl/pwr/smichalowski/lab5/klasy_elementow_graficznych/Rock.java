@@ -1,4 +1,4 @@
-package pl.pwr.smichalowski.lab5;
+package pl.pwr.smichalowski.lab5.klasy_elementow_graficznych;
 
 import java.awt.*;
 import java.util.Objects;
@@ -8,7 +8,7 @@ public class Rock {
 
     private int x;
     private int y;
-    private static final Image image = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\rock.png");
+    private static final Image image = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\pliki_png\\rock.png");
     // https://www.iconarchive.com/show/fluentui-emoji-flat-icons-by-microsoft/Rock-Flat-icon.html
 
     public Rock() {

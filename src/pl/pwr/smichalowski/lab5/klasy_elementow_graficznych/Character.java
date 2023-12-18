@@ -1,4 +1,4 @@
-package pl.pwr.smichalowski.lab5;
+package pl.pwr.smichalowski.lab5.klasy_elementow_graficznych;
 
 import java.awt.*;
 
@@ -6,7 +6,7 @@ public class Character {
 
     private int x;
     private int y;
-    private static final Image image = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\character.png");
+    private static final Image image = Toolkit.getDefaultToolkit().getImage("C:\\Users\\szymo\\IdeaProjects\\lab5\\src\\pl\\pwr\\smichalowski\\lab5\\pliki_png\\character.png");
     // https://fonts.google.com/icons?selected=Material+Icons:man:
 
     public Character(int x, int y) {

@@ -1,4 +1,4 @@
-package pl.pwr.smichalowski.lab5;
+package pl.pwr.smichalowski.lab5.glowne_klasy;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -9,6 +9,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import pl.pwr.smichalowski.lab5.klasy_elementow_graficznych.Apple;
+import pl.pwr.smichalowski.lab5.klasy_elementow_graficznych.Water;
+import pl.pwr.smichalowski.lab5.klasy_elementow_graficznych.Rock;
+import pl.pwr.smichalowski.lab5.klasy_elementow_graficznych.Character;
 
 public class MyPanel extends JPanel implements ActionListener {
 
@@ -139,6 +143,7 @@ public class MyPanel extends JPanel implements ActionListener {
                         }
 
                         if(sameApple == 0) { // Wspolrzedne jabłka nie powtarzają się
+
                             if (apples[i] != null) repaint();
                             try {
                                 Thread.sleep(5000); // Kolejne jabłko pojawi sie za 5 sekund
@@ -147,8 +152,10 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
 
                         } else if(sameApple == 1) { // Współrzędne jablka powtarzają się
+
                             sameApple = 0;
                             i--; // Ponowne wejscie do petli dla tej samej wartosci i, aby wylosowac unikalne wspolrzedne jablka
+
                         }
 
                     }
@@ -199,6 +206,7 @@ public class MyPanel extends JPanel implements ActionListener {
                         }
 
                         if(sameWater == 0) { // Wspolrzedne wody nie powtarzają się
+
                             if (waterBottles[i] != null) repaint();
                             try {
                                 Thread.sleep(7000); // Kolejna butelka pojawi sie za 7 sekund
@@ -207,8 +215,10 @@ public class MyPanel extends JPanel implements ActionListener {
                             }
 
                         } else if(sameWater == 1) { // Współrzędne wody powtarzają się
+
                             sameWater = 0;
                             i--; // Ponowne wejscie do petli dla tej samej wartosci i, aby wylosowac unikalne wspolrzedne wody
+
                         }
 
                     }
@@ -433,4 +443,4 @@ public class MyPanel extends JPanel implements ActionListener {
 
     } // Koniec metody actionPerformed()
 
-}
+} // Koniec klasy MyPanel

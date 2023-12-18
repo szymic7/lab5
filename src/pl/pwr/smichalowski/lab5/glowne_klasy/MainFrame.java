@@ -1,4 +1,4 @@
-package pl.pwr.smichalowski.lab5;
+package pl.pwr.smichalowski.lab5.glowne_klasy;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;

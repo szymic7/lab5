@@ -1,6 +1,5 @@
-package pl.pwr.smichalowski.lab5;
+package pl.pwr.smichalowski.lab5.klasy_elementow_graficznych;
 
-import java.awt.*;
 import java.util.Objects;
 import java.util.Random;
 
